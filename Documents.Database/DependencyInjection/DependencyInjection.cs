@@ -22,14 +22,6 @@ public static class DependencyInjection
         var contextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<DocumentContext>>();
 
         await using var context = await contextFactory.CreateDbContextAsync();
-
-        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
-        var pendingMigrationsList = pendingMigrations.ToArray();
-
-        if (pendingMigrationsList.Length == 0)
-        {
-            return;
-        }
         
         await context.Database.MigrateAsync();
     }

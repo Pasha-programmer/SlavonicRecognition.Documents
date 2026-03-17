@@ -1,0 +1,37 @@
+services:
+  documents.webapi:
+    image: ${DOCKER_REGISTRY-}documentswebapi
+    container_name: documentswebapi
+    build:
+      context: .
+      dockerfile: Documents.WebApi/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - sqlite
+    volumes:
+      - sqlite-data:/app/data
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/KyrProjDB.db
+    networks:
+      - slavonic_recognition-documents
+
+  sqlite:
+    image: ${DOCKER_REGISTRY-}sqlite
+    container_name: sqlite
+    build:
+      context: .
+      dockerfile: ../Database/Dockerfile.sqlite
+    volumes:
+      - sqlite-data:/app/data
+    networks:
+      - slavonic_recognition-documents
+    command: ["tail", "-f", "/dev/null"]
+
+volumes:
+  sqlite-data:
+
+networks:
+  slavonic_recognition-documents:
+    driver: bridge
+
