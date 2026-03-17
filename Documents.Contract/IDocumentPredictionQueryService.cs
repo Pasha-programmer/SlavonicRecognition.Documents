@@ -1,0 +1,8 @@
+﻿using Documents.Contract.Model;
+
+namespace Documents.Contract;
+
+public interface IDocumentPredictionQueryService
+{
+    Task<IReadOnlyCollection<RecognizedDocumentDto>> GetFilePredications(DateTime? fromDate, DateTime? toDate);
+}
