@@ -21,7 +21,9 @@ services:
     container_name: sqlite
     build:
       context: .
-      dockerfile: ../Database/Dockerfile.sqlite
+      dockerfile: Dockerfile.sqlite
+    ports:
+      - "8081:81"
     volumes:
       - sqlite-data:/app/data
     networks:

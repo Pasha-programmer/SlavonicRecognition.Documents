@@ -12,6 +12,11 @@ app.UseStaticFiles();
 
 await app.Services.ApplyMigrationsAsync();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
 app.AddEndPoints();
 
 app.Run();

@@ -5,8 +5,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
-
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -29,9 +27,19 @@ RUN dotnet publish "./Documents.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/p
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
-USER root
-RUN mkdir -p /app/data && chown $APP_UID /app/data
-USER $APP_UID
 WORKDIR /app
 COPY --from=publish /app/publish .
+# Создаем директорию и устанавливаем права
+RUN mkdir -p /app/data && \
+    chmod 777 /app/data
+
+# Переключаемся на root для создания файла БД (временно)
+USER root
+RUN touch /app/data/KyrProjDB.db && \
+    chmod 666 /app/data/KyrProjDB.db && \
+    chown $APP_UID:$APP_UID /app/data/KyrProjDB.db
+
+# Возвращаем пользователя
+USER $APP_UID
+
 ENTRYPOINT ["dotnet", "Documents.WebApi.dll"]

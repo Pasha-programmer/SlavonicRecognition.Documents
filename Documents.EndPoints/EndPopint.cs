@@ -40,12 +40,13 @@ public static class EndPopint
                 await using var fileStream = new FileStream(filePathUri.LocalPath, FileMode.Create);
                 await stream.CopyToAsync(fileStream, cancellationToken);
 
-                var buffer = await File.ReadAllBytesAsync(filePathUri.LocalPath, cancellationToken);
+                var buffer = new Memory<byte>();
+                await fileStream.ReadExactlyAsync(buffer, cancellationToken);
 
                 var documentId = await documentCommandService.AddDocument(new()
                 {
                     FileName = formFile.FileName,
-                    FileBlob = buffer,
+                    FileBlob = buffer.ToArray(),
                 }, cancellationToken);
 
                 await processDocument.StartProcessDocument(documentId, cancellationToken);

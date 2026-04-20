@@ -24,9 +24,17 @@ public static class DependencyInjection
             var options = sp.GetRequiredService<IOptions<RabbitMqConfigurationOption>>().Value;
             return new ConnectionFactory()
             {
-                HostName = "localhost",
-                Port = 15672,
-            };
+                HostName = options.HostName,
+                Port = options.Port,
+                UserName = options.UserName,
+                Password = options.Password,
+                VirtualHost = options.VirtualHost,
+                //RequestedHeartbeat = TimeSpan.FromSeconds(60),
+                //AutomaticRecoveryEnabled = true,
+                //NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
+                //TopologyRecoveryEnabled = true,
+                //ContinuationTimeout = TimeSpan.FromSeconds(20),
+            }; 
         });
 
         services.AddScoped<IRabbitMqService, RabbitMqService>();
