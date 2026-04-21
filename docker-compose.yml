@@ -2,10 +2,10 @@ services:
   documents.webapi:
     # image: ${DOCKER_REGISTRY-}documentswebapi
     ports:
-        - 5052:5052
+      - 5052:5052
     build:
       context: .
-      dockerfile: Documents.WebApi/Dockerfile
+      dockerfile: ./Documents.WebApi/Dockerfile
       args:
         - BUILD_CONFIGURATION=Debug #Debug, Release
         - ASPNETCORE_ENVIRONMENT=Development #Development, Staging, Production
@@ -16,6 +16,20 @@ services:
       - slavonic_recognition-documents
     volumes:
       - sqlite-data:/app/data
+
+  documents.spa:
+    ports:
+      - "5173:5173"
+    build:
+      context: ../Spa
+      dockerfile: Dockerfile
+    volumes:
+      - ../Spa:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    networks:
+      - slavonic_recognition-documents
 
 volumes:
   sqlite-data:
