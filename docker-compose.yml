@@ -1,39 +1,26 @@
 services:
   documents.webapi:
-    image: ${DOCKER_REGISTRY-}documentswebapi
-    container_name: documentswebapi
+    # image: ${DOCKER_REGISTRY-}documentswebapi
+    ports:
+        - 5052:5052
     build:
       context: .
       dockerfile: Documents.WebApi/Dockerfile
-    ports:
-      - "8080:80"
-    depends_on:
-      - sqlite
-    volumes:
-      - sqlite-data:/app/data
+      args:
+        - BUILD_CONFIGURATION=Debug #Debug, Release
+        - ASPNETCORE_ENVIRONMENT=Development #Development, Staging, Production
+        - ASPNETCORE_URLS=http://*:5052
     environment:
       - ConnectionStrings__DefaultConnection=Data Source=/app/data/KyrProjDB.db
     networks:
       - slavonic_recognition-documents
-
-  sqlite:
-    image: ${DOCKER_REGISTRY-}sqlite
-    container_name: sqlite
-    build:
-      context: .
-      dockerfile: Dockerfile.sqlite
-    ports:
-      - "8081:81"
     volumes:
       - sqlite-data:/app/data
-    networks:
-      - slavonic_recognition-documents
-    command: ["tail", "-f", "/dev/null"]
 
 volumes:
   sqlite-data:
+    driver: local
 
 networks:
   slavonic_recognition-documents:
     driver: bridge
-

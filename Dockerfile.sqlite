@@ -1,6 +1,17 @@
 FROM alpine:3.19
 
-USER $APP_UID
+# Создаем пользователя и группу
+RUN addgroup -g 1000 -S appgroup && \
+    adduser -u 1000 -S appuser -G appgroup
+
+# Создаем директорию и устанавливаем права
+RUN mkdir -p /app/data && \
+    chown -R appuser:appgroup /app/data && \
+    chmod 777 /app/data
+
+USER appuser
 EXPOSE 8081
 
 RUN apk add --no-cache sqlite
+
+CMD ["tail", "-f", "/dev/null"]
