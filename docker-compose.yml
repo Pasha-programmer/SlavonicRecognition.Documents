@@ -1,15 +1,15 @@
 services:
   documents.webapi:
     # image: ${DOCKER_REGISTRY-}documentswebapi
+    container_name: "documents.webapi"
     ports:
-      - 5052:5052
+      - 5052:8080
     build:
       context: .
       dockerfile: ./Documents.WebApi/Dockerfile
       args:
         - BUILD_CONFIGURATION=Debug #Debug, Release
         - ASPNETCORE_ENVIRONMENT=Development #Development, Staging, Production
-        - ASPNETCORE_URLS=http://*:5052
     environment:
       - ConnectionStrings__DefaultConnection=Data Source=/app/data/KyrProjDB.db
     networks:
@@ -18,6 +18,7 @@ services:
       - sqlite-data:/app/data
 
   documents.spa:
+    container_name: "documents.spa"
     ports:
       - "5173:5173"
     build:
@@ -28,6 +29,40 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+    networks:
+      - slavonic_recognition-documents
+
+  documents.recognition.ai:
+    container_name: "documents.recognition.ai"
+    ports:
+      - "5174:5174"
+    build:
+      context: ../DocumentRecognition.AI
+      dockerfile: Dockerfile
+    networks:
+      - slavonic_recognition-documents
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  documents.rabbitmq:
+    container_name: "documents.rabbitmq"
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - 15672:15672
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
     networks:
       - slavonic_recognition-documents
 
