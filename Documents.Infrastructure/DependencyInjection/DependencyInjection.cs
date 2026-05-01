@@ -28,7 +28,6 @@ public static class DependencyInjection
                 Port = options.Port,
                 UserName = options.UserName,
                 Password = options.Password,
-                VirtualHost = options.VirtualHost,
                 //RequestedHeartbeat = TimeSpan.FromSeconds(60),
                 //AutomaticRecoveryEnabled = true,
                 //NetworkRecoveryInterval = TimeSpan.FromSeconds(10),

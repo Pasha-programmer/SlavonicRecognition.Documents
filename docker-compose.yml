@@ -34,8 +34,6 @@ services:
 
   documents.recognition.ai:
     container_name: "documents.recognition.ai"
-    ports:
-      - "5174:5174"
     build:
       context: ../DocumentRecognition.AI
       dockerfile: Dockerfile
@@ -55,9 +53,12 @@ services:
     image: rabbitmq:3.13-management-alpine
     ports:
       - 15672:15672
+      - 5672:5672
     hostname: rabbitmq
     restart: always
     environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin123
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648

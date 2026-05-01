@@ -15,8 +15,5 @@ internal class RabbitMqConfigurationOption
 
     [Required(ErrorMessage = $"{nameof(Password)} обязателен для заполнения.")]
     public required string Password { get; set; }
-
-    [Required(ErrorMessage = $"{nameof(VirtualHost)} обязателен для заполнения.")]
-    public required string VirtualHost { get; set; }
 }
 
