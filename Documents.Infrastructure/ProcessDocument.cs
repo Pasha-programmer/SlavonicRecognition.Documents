@@ -6,7 +6,7 @@ internal class ProcessDocument : IProcessDocument
 {
     private readonly IRabbitMqService _rabbitMqService;
 
-    private const string QUEUE_NAME = "Document.Queue";
+    private const string RECOGNITION_REQUEST_QUEUE_NAME = "RecognitionRequest.Queue";
 
     public ProcessDocument(IRabbitMqService rabbitMqService)
     {
@@ -16,7 +16,7 @@ internal class ProcessDocument : IProcessDocument
     /// <inheritdoc/>
     public async Task StartProcessDocument(long documentId, Memory<byte> blob, CancellationToken cancellationToken = default)
     {
-        await _rabbitMqService.SendMessage(QUEUE_NAME, new
+        await _rabbitMqService.SendMessage(RECOGNITION_REQUEST_QUEUE_NAME, new
         {
             DocumentId = documentId,
             Blob = blob

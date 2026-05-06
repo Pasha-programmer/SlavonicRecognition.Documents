@@ -1,6 +1,7 @@
 ﻿using Documents.Contract;
 using Documents.Contract.Model;
 using Documents.Database;
+using Documents.Database.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Documents.Infrastructure;
@@ -10,9 +11,9 @@ internal class DocumentPredictionQueryService(
     : IDocumentPredictionQueryService
 {
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<RecognizedDocumentDto>> GetFilePredications(DateTime? fromDate, DateTime? toDate)
+    public async Task<IReadOnlyCollection<RecognizedDocumentDto>> GetFilePredications(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default)
     {
-        await using var context = await contextFactory.CreateDbContextAsync();
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var query = from d in context.Documents
                     join dp in context.DocumentPredictions on d.Id equals dp.DocumentId
@@ -38,6 +39,21 @@ internal class DocumentPredictionQueryService(
             FileName = x.FileName,
             FileBlob = x.FileBlob,
             Content = x.Content,
-        }).ToArrayAsync();
+        }).ToArrayAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> AddPredication(RecognitionResult recognitionResult, CancellationToken cancellationToken = default)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
+        context.Attach(new DocumentPrediction
+        {
+            DocumentId = recognitionResult.DocumentId,
+            Value = recognitionResult.Label,
+            Prob = recognitionResult.Probability,
+        });
+
+        return (await context.SaveChangesAsync(cancellationToken)) > 0;
     }
 }

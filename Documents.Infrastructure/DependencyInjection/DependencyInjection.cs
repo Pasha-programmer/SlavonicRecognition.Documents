@@ -41,6 +41,8 @@ public static class DependencyInjection
         services.AddScoped<IDocumentCommandService, DocumentCommandService>();
         services.AddScoped<IDocumentPredictionQueryService, DocumentPredictionQueryService>();
 
+        services.AddHostedService<RecognitionResultsConsumerService>();
+
         return services;
     }
 }
