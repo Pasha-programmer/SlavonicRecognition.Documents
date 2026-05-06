@@ -14,8 +14,12 @@ internal class ProcessDocument : IProcessDocument
     }
 
     /// <inheritdoc/>
-    public async Task StartProcessDocument(long documentId, CancellationToken cancellationToken = default)
+    public async Task StartProcessDocument(long documentId, Memory<byte> blob, CancellationToken cancellationToken = default)
     {
-        await _rabbitMqService.SendMessage(QUEUE_NAME, documentId, cancellationToken);
+        await _rabbitMqService.SendMessage(QUEUE_NAME, new
+        {
+            DocumentId = documentId,
+            Blob = blob
+        }, cancellationToken);
     }
 }

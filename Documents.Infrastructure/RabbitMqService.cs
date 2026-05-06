@@ -86,7 +86,7 @@ public class RabbitMqService : IRabbitMqService, IAsyncDisposable
 
         await _channel.QueueDeclareAsync(
             queue: queueName,
-            durable: false,
+            durable: true,
             exclusive: false,
             autoDelete: false,
             arguments: null,

@@ -33,23 +33,17 @@ public static class EndPopint
 
             foreach (var formFile in images)
             {
-                var directoryPath = Path.GetTempPath();
-                var filePathUri = new Uri(Path.Combine(directoryPath, Path.GetTempFileName()));
-
-                await using var stream = formFile.OpenReadStream();
-                await using var fileStream = new FileStream(filePathUri.LocalPath, FileMode.Create);
-                await stream.CopyToAsync(fileStream, cancellationToken);
-
-                var buffer = new Memory<byte>();
-                await fileStream.ReadExactlyAsync(buffer, cancellationToken);
+                await using var memoryStream = new MemoryStream();
+                await formFile.CopyToAsync(memoryStream, cancellationToken);
+                var fileBlob = memoryStream.ToArray();
 
                 var documentId = await documentCommandService.AddDocument(new()
                 {
                     FileName = formFile.FileName,
-                    FileBlob = buffer.ToArray(),
+                    FileBlob = fileBlob,
                 }, cancellationToken);
 
-                await processDocument.StartProcessDocument(documentId, cancellationToken);
+                await processDocument.StartProcessDocument(documentId, fileBlob, cancellationToken);
 
                 documentIds.Add(documentId);
             }

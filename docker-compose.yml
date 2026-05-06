@@ -1,6 +1,5 @@
 services:
   documents.webapi:
-    # image: ${DOCKER_REGISTRY-}documentswebapi
     container_name: "documents.webapi"
     ports:
       - 5052:8080
@@ -16,6 +15,14 @@ services:
       - slavonic_recognition-documents
     volumes:
       - sqlite-data:/app/data
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+    #   interval: 5s
+    #   timeout: 3s
+    #   retries: 3
+    depends_on:
+      documents.rabbitmq:
+        condition: service_healthy
 
   documents.spa:
     container_name: "documents.spa"
@@ -31,6 +38,8 @@ services:
       - NODE_ENV=development
     networks:
       - slavonic_recognition-documents
+    depends_on:
+      - documents.webapi
 
   documents.recognition.ai:
     container_name: "documents.recognition.ai"
@@ -47,6 +56,15 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASSWORD=admin123
+      - RABBITMQ_QUEUE=Document.Queue
+    depends_on:
+      documents.rabbitmq:
+        condition: service_healthy
 
   documents.rabbitmq:
     container_name: "documents.rabbitmq"
@@ -66,6 +84,11 @@ services:
       - ./rabbitmq:/var/lib/rabbitmq
     networks:
       - slavonic_recognition-documents
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   sqlite-data:
