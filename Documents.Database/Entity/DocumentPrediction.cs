@@ -6,5 +6,7 @@ public class DocumentPrediction
 
     public int DocumentId { get; set; }
 
-    public string Value { get; set; }
+    public required string Value { get; set; }
+
+    public double Prob { get; set; }
 }
