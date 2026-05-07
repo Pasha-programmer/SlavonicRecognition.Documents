@@ -55,9 +55,11 @@ public static class EndPopint
         documentEndPoints.MapGet("", async (
             [FromServices] IDocumentPredictionQueryService documentPredictionQueryService,
             [FromQuery] DateTime? fromDate,
-            [FromQuery] DateTime? toDate) =>
+            [FromQuery] DateTime? toDate,
+            [FromQuery] bool? hasProbability,
+            CancellationToken cancellationToken) =>
         {
-            return await documentPredictionQueryService.GetFilePredications(fromDate, toDate);
+            return await documentPredictionQueryService.GetFilePredications(fromDate, toDate, hasProbability, cancellationToken);
         });
 
         return endPoints;

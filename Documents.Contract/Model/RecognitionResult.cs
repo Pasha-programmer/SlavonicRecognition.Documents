@@ -2,7 +2,7 @@
 
 public record RecognitionResult
 {
-    public required int DocumentId { get; set; }
+    public required long DocumentId { get; set; }
 
     public required string Label { get; set; }
 

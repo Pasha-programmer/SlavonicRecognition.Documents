@@ -11,20 +11,26 @@ internal class DocumentPredictionQueryService(
     : IDocumentPredictionQueryService
 {
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<RecognizedDocumentDto>> GetFilePredications(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<RecognizedDocumentDto>> GetFilePredications(
+        DateTime? fromDate, 
+        DateTime? toDate,
+        bool? hasProbability,
+        CancellationToken cancellationToken = default)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var query = from d in context.Documents
-                    join dp in context.DocumentPredictions on d.Id equals dp.DocumentId
+                    join dp in context.DocumentPredictions on d.Id equals dp.DocumentId into dp0
+                    from dp in dp0.DefaultIfEmpty()
 
                     select new
                     {
                         DocumentId = d.Id,
                         FileName = d.FileName,
                         FileBlob = d.FileBlob,
-                        Content = dp.Value,
+                        Label = dp != null ? dp.Value : null,
                         CreateAt = d.CreateAt,
+                        Probability = dp != null ? dp.Prob : (float?)null,
                     };
 
         if (fromDate.HasValue)
@@ -33,26 +39,42 @@ internal class DocumentPredictionQueryService(
         if (toDate.HasValue)
             query = query.Where(x => x.CreateAt < toDate);
 
-        return await query.Select(x => new RecognizedDocumentDto
-        {
-            DocumentId = x.DocumentId,
-            FileName = x.FileName,
-            FileBlob = x.FileBlob,
-            Content = x.Content,
-        }).ToArrayAsync(cancellationToken);
+        if (hasProbability.HasValue)
+            query = query.Where(x => x.Probability.HasValue == hasProbability.Value);
+
+        var data = await query.ToArrayAsync(cancellationToken);
+
+        return data.GroupBy(d => d.DocumentId)
+            .Select(gd =>
+            {
+                var firstItem = gd.First();
+                return new RecognizedDocumentDto
+                {
+                    DocumentId = gd.Key,
+                    FileBlob = firstItem.FileBlob,
+                    FileName = firstItem.FileName,
+                    RecognitionResults = gd.Where(d => d.Label != null)
+                        .Select(d => new RecognitionResult
+                        {
+                            DocumentId = gd.Key,
+                            Label = d.Label,
+                            Probability = d.Probability!.Value,
+                        }).ToArray(),
+                };
+            }).ToArray();
     }
 
     /// <inheritdoc/>
-    public async Task<bool> AddPredication(RecognitionResult recognitionResult, CancellationToken cancellationToken = default)
+    public async Task<bool> AddPredication(IReadOnlyCollection<RecognitionResult> recognitionResult, CancellationToken cancellationToken = default)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        context.Attach(new DocumentPrediction
+        context.AttachRange(recognitionResult.Select(rr => new DocumentPrediction
         {
-            DocumentId = recognitionResult.DocumentId,
-            Value = recognitionResult.Label,
-            Prob = recognitionResult.Probability,
-        });
+            DocumentId = rr.DocumentId,
+            Value = rr.Label,
+            Prob = rr.Probability,
+        }));
 
         return (await context.SaveChangesAsync(cancellationToken)) > 0;
     }

@@ -8,5 +8,5 @@ public record RecognizedDocumentDto
 
     public required ReadOnlyMemory<byte> FileBlob { get; set; }
 
-    public required string Content { get; set; }
+    public required IReadOnlyCollection<RecognitionResult> RecognitionResults { get; set; }
 }

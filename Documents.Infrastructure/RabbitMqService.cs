@@ -9,7 +9,6 @@ public class RabbitMqService : IRabbitMqService, IAsyncDisposable
     private readonly IConnectionFactory _connectionFactory;
     private IConnection _connection;
     private IChannel _channel;
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
     public RabbitMqService(IConnectionFactory connectionFactory)
     {

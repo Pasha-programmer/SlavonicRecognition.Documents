@@ -36,7 +36,7 @@ namespace Documents.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Documents");
+                    b.ToTable("Documents", (string)null);
                 });
 
             modelBuilder.Entity("Documents.Database.Entity.DocumentPrediction", b =>
@@ -57,7 +57,7 @@ namespace Documents.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DocumentPredictions");
+                    b.ToTable("DocumentPredictions", (string)null);
                 });
 #pragma warning restore 612, 618
         }

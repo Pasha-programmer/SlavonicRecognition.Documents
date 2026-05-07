@@ -1,9 +1,11 @@
 ﻿using Documents.Contract;
 using Documents.Contract.Model;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System;
 using System.Text;
 using System.Text.Json;
 
@@ -12,18 +14,22 @@ namespace Documents.Infrastructure;
 internal class RecognitionResultsConsumerService : IHostedService
 {
     private readonly ILogger<RecognitionResultsConsumerService> _logger;
-    private readonly IDocumentPredictionQueryService _documentPredictionQueryService;
+
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IConnectionFactory _connectionFactory;
     private IConnection _connection;
     private IChannel _channel;
 
     private const string RECOGNITION_RESULTS_QUEUE_NAME = "RecognitionResults.Queue";
 
     public RecognitionResultsConsumerService(
+        IConnectionFactory connectionFactory,
         ILogger<RecognitionResultsConsumerService> logger,
-        IDocumentPredictionQueryService documentPredictionQueryService)
+        IServiceProvider serviceProvider)
     {
         _logger = logger;
-        _documentPredictionQueryService = documentPredictionQueryService;
+        _serviceProvider = serviceProvider;
+        _connectionFactory = connectionFactory;;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -36,15 +42,7 @@ internal class RecognitionResultsConsumerService : IHostedService
 
     private async Task InitializeRabbitMqAsync(CancellationToken cancellationToken)
     {
-        var factory = new ConnectionFactory
-        {
-            HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
-            Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
-            UserName = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "guest",
-            Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest",
-        };
-
-        _connection = await factory.CreateConnectionAsync(cancellationToken);
+        _connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
         await _channel.QueueDeclareAsync(
@@ -66,11 +64,14 @@ internal class RecognitionResultsConsumerService : IHostedService
             try
             {
                 var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                var result = JsonSerializer.Deserialize<RecognitionResult>(message);
+                var result = JsonSerializer.Deserialize<RecognitionResult[]>(message);
 
                 if (result != null)
                 {
-                    await _documentPredictionQueryService.AddPredication(result, cancellationToken);
+                    await using var scope = _serviceProvider.CreateAsyncScope();
+                    var documentPredictionQueryService = scope.ServiceProvider.GetRequiredService<IDocumentPredictionQueryService>();
+
+                    await documentPredictionQueryService.AddPredication(result!, cancellationToken);
                 }
 
                 await _channel.BasicAckAsync(args.DeliveryTag, false, cancellationToken);

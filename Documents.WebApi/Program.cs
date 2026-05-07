@@ -24,14 +24,6 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-//app.Use(async (context, next) =>
-//{
-//    app.Logger.LogInformation("[REQUEST] {Method} {Path}", context.Request.Method, context.Request.Path);
-//    await next();
-//    app.Logger.LogInformation("[RESPONSE] {StatusCode}", context.Response.StatusCode);
-//});
-
-
 app.AddEndPoints();
 
 app.Run();
