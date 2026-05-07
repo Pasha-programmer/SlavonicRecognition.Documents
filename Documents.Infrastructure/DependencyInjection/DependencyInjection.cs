@@ -39,7 +39,9 @@ public static class DependencyInjection
         services.AddScoped<IRabbitMqService, RabbitMqService>();
         services.AddScoped<IProcessDocument, ProcessDocument>();
         services.AddScoped<IDocumentCommandService, DocumentCommandService>();
+        services.AddScoped<IDocumentQueryService, DocumentQueryService>();
         services.AddScoped<IDocumentPredictionQueryService, DocumentPredictionQueryService>();
+        services.AddScoped<IDocumentPredictionCommandService, DocumentPredictionCommandService>();
 
         services.AddHostedService<RecognitionResultsConsumerService>();
 

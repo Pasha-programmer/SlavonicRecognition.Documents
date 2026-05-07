@@ -69,7 +69,7 @@ internal class RecognitionResultsConsumerService : IHostedService
                 if (result != null)
                 {
                     await using var scope = _serviceProvider.CreateAsyncScope();
-                    var documentPredictionQueryService = scope.ServiceProvider.GetRequiredService<IDocumentPredictionQueryService>();
+                    var documentPredictionQueryService = scope.ServiceProvider.GetRequiredService<IDocumentPredictionCommandService>();
 
                     await documentPredictionQueryService.AddPredication(result!, cancellationToken);
                 }

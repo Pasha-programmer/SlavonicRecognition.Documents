@@ -59,7 +59,27 @@ public static class EndPopint
             [FromQuery] bool? hasProbability,
             CancellationToken cancellationToken) =>
         {
-            return await documentPredictionQueryService.GetFilePredications(fromDate, toDate, hasProbability, cancellationToken);
+            var data = await documentPredictionQueryService.GetFilePredications(fromDate, toDate, hasProbability, cancellationToken);
+
+            return Results.Ok(data);
+        });
+
+        documentEndPoints.MapPost("/reprocess", async (
+            [FromBody] long documentId,
+            [FromServices] IProcessDocument processDocument,
+            [FromServices] IDocumentQueryService documentQueryService,
+            CancellationToken cancellationToken) =>
+        {
+            var document = await documentQueryService.GetDocument(documentId, cancellationToken);
+
+            if (document == default)
+            {
+                return Results.BadRequest();
+            }
+
+            await processDocument.StartProcessDocument(documentId, document.FileBlob, cancellationToken);
+
+            return Results.Ok(true);
         });
 
         return endPoints;

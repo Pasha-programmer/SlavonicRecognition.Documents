@@ -9,6 +9,4 @@ public interface IDocumentPredictionQueryService
         DateTime? toDate, 
         bool? hasProbability, 
         CancellationToken cancellationToken = default);
-
-    Task<bool> AddPredication(IReadOnlyCollection<RecognitionResult> recognitionResult, CancellationToken cancellationToken = default);
 }
