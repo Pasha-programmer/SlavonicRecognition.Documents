@@ -1,4 +1,6 @@
 ﻿using Documents.Contract;
+using Documents.Contract.Model;
+using Documents.EndPoints.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +22,7 @@ public static class EndPopint
 
         documentEndPoints.MapPost("/upload", async (
             [FromForm] IFormFileCollection images,
+            [FromForm] AiModelType modelType,
             [FromServices] IDocumentCommandService documentCommandService,
             [FromServices] IProcessDocument processDocument,
             CancellationToken cancellationToken) =>
@@ -43,7 +46,7 @@ public static class EndPopint
                     FileBlob = fileBlob,
                 }, cancellationToken);
 
-                await processDocument.StartProcessDocument(documentId, fileBlob, cancellationToken);
+                await processDocument.StartProcessDocument(documentId, fileBlob, modelType, cancellationToken);
 
                 documentIds.Add(documentId);
             }
@@ -65,19 +68,23 @@ public static class EndPopint
         });
 
         documentEndPoints.MapPost("/reprocess", async (
-            [FromBody] long documentId,
+            [FromBody] ReprocessParameters reprocessParameters,
             [FromServices] IProcessDocument processDocument,
             [FromServices] IDocumentQueryService documentQueryService,
             CancellationToken cancellationToken) =>
         {
-            var document = await documentQueryService.GetDocument(documentId, cancellationToken);
+            var document = await documentQueryService.GetDocument(reprocessParameters.DocumentId, cancellationToken);
 
             if (document == default)
             {
                 return Results.BadRequest();
             }
 
-            await processDocument.StartProcessDocument(documentId, document.FileBlob, cancellationToken);
+            await processDocument.StartProcessDocument(
+                reprocessParameters.DocumentId, 
+                document.FileBlob, 
+                reprocessParameters.ModelType, 
+                cancellationToken);
 
             return Results.Ok(true);
         });

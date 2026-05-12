@@ -29,10 +29,10 @@ services:
     ports:
       - "5173:5173"
     build:
-      context: ../Spa
+      context: ../DocumentRecognition_Spa_v2
       dockerfile: Dockerfile
     volumes:
-      - ../Spa:/app
+      - ../DocumentRecognition_Spa_v2:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
@@ -55,8 +55,9 @@ services:
           memory: 2G
         reservations:
           cpus: '0.5'
-          memory: 512M
+          memory: 512M      
     volumes:
+      - ../DocumentRecognition.AI:/app
       - sqlite-data:/app/data
     environment:
       - RABBITMQ_HOST=rabbitmq

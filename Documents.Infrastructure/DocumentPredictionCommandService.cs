@@ -18,6 +18,7 @@ internal class DocumentPredictionCommandService(
         context.AttachRange(recognitionResult.Select(rr => new DocumentPrediction
         {
             DocumentId = rr.DocumentId,
+            ModelType = (int)rr.ModelType,
             Value = rr.Label,
             Prob = rr.Probability,
         }));

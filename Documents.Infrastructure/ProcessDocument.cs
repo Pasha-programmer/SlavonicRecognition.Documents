@@ -1,4 +1,5 @@
 ﻿using Documents.Contract;
+using Documents.Contract.Model;
 
 namespace Documents.Infrastructure;
 
@@ -14,12 +15,13 @@ internal class ProcessDocument : IProcessDocument
     }
 
     /// <inheritdoc/>
-    public async Task StartProcessDocument(long documentId, Memory<byte> blob, CancellationToken cancellationToken = default)
+    public async Task StartProcessDocument(long documentId, Memory<byte> blob, AiModelType aiModelType, CancellationToken cancellationToken = default)
     {
         await _rabbitMqService.SendMessage(RECOGNITION_REQUEST_QUEUE_NAME, new
         {
             DocumentId = documentId,
-            Blob = blob
+            Blob = blob,
+            Model = Enum.GetName(aiModelType),
         }, cancellationToken);
     }
 }

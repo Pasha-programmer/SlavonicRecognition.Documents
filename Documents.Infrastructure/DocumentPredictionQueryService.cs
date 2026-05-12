@@ -27,6 +27,7 @@ internal class DocumentPredictionQueryService(
                         DocumentId = d.Id,
                         FileName = d.FileName,
                         FileBlob = d.FileBlob,
+                        ModelType = dp != null ? dp.ModelType : (int?)null,
                         Label = dp != null ? dp.Value : null,
                         CreateAt = d.CreateAt,
                         Probability = dp != null ? dp.Prob : (float?)null,
@@ -56,6 +57,7 @@ internal class DocumentPredictionQueryService(
                         .Select(d => new RecognitionResult
                         {
                             DocumentId = gd.Key,
+                            ModelType = (AiModelType)d.ModelType!,
                             Label = d.Label,
                             Probability = d.Probability!.Value,
                         }).ToArray(),

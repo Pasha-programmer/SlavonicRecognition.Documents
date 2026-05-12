@@ -8,6 +8,7 @@ using RabbitMQ.Client.Events;
 using System;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Documents.Infrastructure;
 
@@ -64,7 +65,13 @@ internal class RecognitionResultsConsumerService : IHostedService
             try
             {
                 var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                var result = JsonSerializer.Deserialize<RecognitionResult[]>(message);
+                var result = JsonSerializer.Deserialize<RecognitionResult[]>(message, new JsonSerializerOptions
+                {
+                    Converters =
+                    {
+                        new JsonStringEnumConverter<AiModelType>(),
+                    },
+                });
 
                 if (result != null)
                 {
