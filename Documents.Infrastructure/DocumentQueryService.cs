@@ -10,19 +10,22 @@ internal class DocumentQueryService(
     : IDocumentQueryService
 {
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<DocumentDto?>> GetDocuments(IReadOnlyCollection<long> documentIds, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<DocumentDto?>> GetDocuments(IReadOnlyCollection<long>? documentIds, CancellationToken cancellationToken = default)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var query = from d in context.Documents
-
-                    where documentIds.Contains(d.Id)
 
                     select new DocumentDto
                     {
                         DocumentId = d.Id,
                         FileBlob = d.FileBlob,
                     };
+
+        if (documentIds != null)
+        {
+            query = query.Where(d => documentIds.Contains(d.DocumentId));
+        }
 
         return await query.ToArrayAsync(cancellationToken);
     }

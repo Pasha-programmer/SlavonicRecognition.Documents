@@ -28,4 +28,19 @@ internal class DocumentCommandService(
 
         return entity.Entity.Id;
     }
+
+    public async Task<bool> DeleteDocuments(IReadOnlyCollection<long> documentIds, CancellationToken cancellationToken = default)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var query = from d in context.Documents
+                    where documentIds.Contains(d.Id)
+                    select d;
+
+        var count = await query.ExecuteDeleteAsync(cancellationToken);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return count > 0;
+    }
 }

@@ -121,6 +121,35 @@ public static class EndPopint
             return Results.Ok(aiModelTypes);
         });
 
+        documentEndPoints.MapDelete("/{documentId}", async (
+            [FromRoute] long documentId,
+            [FromServices] IDocumentCommandService documentCommandService,
+            CancellationToken cancellationToken
+            ) =>
+        {
+            if (await documentCommandService.DeleteDocuments([documentId], cancellationToken))
+            {
+                return Results.Ok();
+            }
+
+            return Results.NotFound();
+        });
+
+        documentEndPoints.MapDelete("", async (
+            [FromQuery] long[] documentIds,
+            [FromServices] IDocumentQueryService documentQueryService,
+            [FromServices] IDocumentCommandService documentCommandService,
+            CancellationToken cancellationToken
+            ) =>
+        {
+            if (await documentCommandService.DeleteDocuments(documentIds, cancellationToken))
+            {
+                return Results.Ok();
+            }
+
+            return Results.NotFound();
+        });
+
         return endPoints;
     }
 
