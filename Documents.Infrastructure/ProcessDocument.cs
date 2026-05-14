@@ -15,13 +15,17 @@ internal class ProcessDocument : IProcessDocument
     }
 
     /// <inheritdoc/>
-    public async Task StartProcessDocument(long documentId, Memory<byte> blob, AiModelType aiModelType, CancellationToken cancellationToken = default)
+    public async Task StartProcessDocument(ProcessingDocument processingDocument, CancellationToken cancellationToken = default)
     {
-        await _rabbitMqService.SendMessage(RECOGNITION_REQUEST_QUEUE_NAME, new
+        await _rabbitMqService.SendMessage(RECOGNITION_REQUEST_QUEUE_NAME, processingDocument, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task StartProcessDocuments(IReadOnlyCollection<ProcessingDocument> processingDocuments, CancellationToken cancellationToken = default)
+    {
+        foreach (var processingDocument in processingDocuments)
         {
-            DocumentId = documentId,
-            Blob = blob,
-            Model = Enum.GetName(aiModelType),
-        }, cancellationToken);
+            await _rabbitMqService.SendMessage(RECOGNITION_REQUEST_QUEUE_NAME, processingDocument, cancellationToken);
+        }
     }
 }

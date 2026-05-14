@@ -4,5 +4,5 @@ namespace Documents.Contract;
 
 public interface IDocumentQueryService
 {
-    Task<DocumentDto?> GetDocument(long documentId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<DocumentDto?>> GetDocuments(IReadOnlyCollection<long> documentIds, CancellationToken cancellationToken = default);
 }

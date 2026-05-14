@@ -1,10 +1,21 @@
-﻿using System.Text.Json.Serialization;
+﻿using Documents.Contract.Infrastructure;
+using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace Documents.Contract.Model;
 
+[JsonConverter(typeof(DescriptionEnumConverter<AiModelType>))]
 public enum AiModelType : int
 {
-    GlagoliticModelFullV1 = 1,
-    GlagoliticModelFullV2 = 2,
-    GlagoliticModelFullV3 = 3,
+    [Description("v1.1")]
+    GlagoliticModelFullV1_1 = 1,
+
+    [Description("v2.0")]
+    GlagoliticModelFullV2_0 = 2,
+
+    [Description("v2.1")]
+    GlagoliticModelFullV2_1 = 3,
+    
+    [Description("v3.0")]
+    GlagoliticModelFullV3_0 = 4,
 }

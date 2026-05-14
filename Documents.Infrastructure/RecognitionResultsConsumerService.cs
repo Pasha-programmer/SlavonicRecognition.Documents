@@ -65,13 +65,7 @@ internal class RecognitionResultsConsumerService : IHostedService
             try
             {
                 var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                var result = JsonSerializer.Deserialize<RecognitionResult[]>(message, new JsonSerializerOptions
-                {
-                    Converters =
-                    {
-                        new JsonStringEnumConverter<AiModelType>(),
-                    },
-                });
+                var result = JsonSerializer.Deserialize<RecognitionResult[]>(message);
 
                 if (result != null)
                 {

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace Documents.EndPoints;
 
@@ -22,7 +24,7 @@ public static class EndPopint
 
         documentEndPoints.MapPost("/upload", async (
             [FromForm] IFormFileCollection images,
-            [FromForm] AiModelType modelType,
+            [FromForm] string modelType,
             [FromServices] IDocumentCommandService documentCommandService,
             [FromServices] IProcessDocument processDocument,
             CancellationToken cancellationToken) =>
@@ -30,6 +32,14 @@ public static class EndPopint
             if (images.Count == 0)
             {
                 return Results.BadRequest("Файлы не обнаружены.");
+            }
+
+            // Конвертируем строку в enum
+            var aiModelType = ConvertDescriptionToEnum(modelType);
+
+            if (!aiModelType.HasValue)
+            {
+                return Results.BadRequest("Неверное наименование модели.");
             }
 
             var documentIds = new List<long>(images.Count);
@@ -46,7 +56,12 @@ public static class EndPopint
                     FileBlob = fileBlob,
                 }, cancellationToken);
 
-                await processDocument.StartProcessDocument(documentId, fileBlob, modelType, cancellationToken);
+                await processDocument.StartProcessDocument(new()
+                {
+                    DocumentId = documentId,
+                    Blob = fileBlob,
+                    AiModelType = aiModelType.Value,
+                }, cancellationToken);
 
                 documentIds.Add(documentId);
             }
@@ -73,22 +88,60 @@ public static class EndPopint
             [FromServices] IDocumentQueryService documentQueryService,
             CancellationToken cancellationToken) =>
         {
-            var document = await documentQueryService.GetDocument(reprocessParameters.DocumentId, cancellationToken);
+            var documents = await documentQueryService.GetDocuments(reprocessParameters.DocumentIds, cancellationToken);
 
-            if (document == default)
+            if (documents.Count == 0)
             {
                 return Results.BadRequest();
             }
 
-            await processDocument.StartProcessDocument(
-                reprocessParameters.DocumentId, 
-                document.FileBlob, 
-                reprocessParameters.ModelType, 
-                cancellationToken);
+            var foundDocumentIds = documents.Select(d => d.DocumentId).ToArray();
+            var notFoundDocumentIds = reprocessParameters.DocumentIds.Except(foundDocumentIds).ToArray();
 
-            return Results.Ok(true);
+            var processingDocuments = documents.Select(d => new ProcessingDocument
+            {
+                DocumentId = d.DocumentId,
+                Blob = d.FileBlob,
+                AiModelType = reprocessParameters.ModelType
+            }).ToArray();
+
+            await processDocument.StartProcessDocuments(processingDocuments, cancellationToken);
+
+            return Results.Ok(new
+            {
+                SendedDocumentsIds = foundDocumentIds,
+                NotFoundDocumentsIds = notFoundDocumentIds,
+            });
+        });
+
+        documentEndPoints.MapGet("/aiModelTypes", () =>
+        {
+            var aiModelTypes = Enum.GetValues<AiModelType>();
+
+            return Results.Ok(aiModelTypes);
         });
 
         return endPoints;
     }
+
+    private static AiModelType? ConvertDescriptionToEnum(string description)
+    {
+        foreach (var field in typeof(AiModelType).GetFields(BindingFlags.Public | BindingFlags.Static))
+        {
+            var desc = field.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            if (desc == description)
+            {
+                return (AiModelType)field.GetValue(null)!;
+            }
+        }
+
+        // Если не нашли по описанию, пробуем парсить напрямую
+        if (Enum.TryParse<AiModelType>(description, out var result))
+        {
+            return result;
+        }
+
+        return null;
+    }
+
 }

@@ -4,7 +4,7 @@ namespace Documents.EndPoints.Models;
 
 internal record ReprocessParameters
 {
-    public long DocumentId { get; set; }
+    public long[] DocumentIds { get; set; }
 
     public AiModelType ModelType { get; set; }
 }

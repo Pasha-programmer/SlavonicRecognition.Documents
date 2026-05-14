@@ -4,5 +4,7 @@ namespace Documents.Contract;
 
 public interface IProcessDocument
 {
-    public Task StartProcessDocument(long documentId, Memory<byte> blob, AiModelType aiModelType, CancellationToken cancellationToken = default);
+    public Task StartProcessDocument(ProcessingDocument processingDocument, CancellationToken cancellationToken = default);
+
+    public Task StartProcessDocuments(IReadOnlyCollection<ProcessingDocument> processingDocuments, CancellationToken cancellationToken = default);
 }

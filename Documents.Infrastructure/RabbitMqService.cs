@@ -1,6 +1,8 @@
-﻿using RabbitMQ.Client;
+﻿using Documents.Contract.Model;
+using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Documents.Infrastructure;
 
