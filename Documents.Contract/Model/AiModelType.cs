@@ -7,6 +7,9 @@ namespace Documents.Contract.Model;
 [JsonConverter(typeof(DescriptionEnumConverter<AiModelType>))]
 public enum AiModelType : int
 {
+    [Description("All")]
+    GlagoliticModelFull = 0,
+
     [Description("v1.1")]
     GlagoliticModelFullV1_1 = 1,
 

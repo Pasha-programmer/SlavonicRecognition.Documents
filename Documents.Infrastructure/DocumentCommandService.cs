@@ -20,6 +20,7 @@ internal class DocumentCommandService(
             FileName = model.FileName,
             FileBlob = model.FileBlob,
             CreateAt = DateTime.Now,
+            SelectedModelType = (int)model.SelectedModelType,
         };
 
         var entity = await context.AddAsync(document, cancellationToken);

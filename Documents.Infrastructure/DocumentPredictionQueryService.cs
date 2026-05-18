@@ -27,6 +27,7 @@ internal class DocumentPredictionQueryService(
                         DocumentId = d.Id,
                         FileName = d.FileName,
                         FileBlob = d.FileBlob,
+                        SelectedModelType = d.SelectedModelType,
                         ModelType = dp != null ? dp.ModelType : (int?)null,
                         Label = dp != null ? dp.Value : null,
                         CreateAt = d.CreateAt,
@@ -53,6 +54,7 @@ internal class DocumentPredictionQueryService(
                     DocumentId = gd.Key,
                     FileBlob = firstItem.FileBlob,
                     FileName = firstItem.FileName,
+                    SelectedModelType = (AiModelType)firstItem.SelectedModelType,
                     RecognitionResults = gd.Where(d => d.Label != null)
                         .Select(d => new RecognitionResult
                         {

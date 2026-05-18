@@ -8,5 +8,7 @@ public record RecognizedDocumentDto
 
     public required ReadOnlyMemory<byte> FileBlob { get; set; }
 
+    public required AiModelType SelectedModelType { get; set; }
+
     public required IReadOnlyCollection<RecognitionResult> RecognitionResults { get; set; }
 }

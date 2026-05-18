@@ -54,6 +54,7 @@ public static class EndPopint
                 {
                     FileName = formFile.FileName,
                     FileBlob = fileBlob,
+                    SelectedModelType = aiModelType.Value,
                 }, cancellationToken);
 
                 await processDocument.StartProcessDocument(new()

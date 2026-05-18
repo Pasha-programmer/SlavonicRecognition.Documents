@@ -9,4 +9,6 @@ public class Document
     public DateTime CreateAt { get; set; }
 
     public byte[] FileBlob { get; set; }
+
+    public int SelectedModelType { get; set; }
 }
