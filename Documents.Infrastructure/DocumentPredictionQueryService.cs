@@ -9,6 +9,21 @@ internal class DocumentPredictionQueryService(
     IDbContextFactory<DocumentContext> contextFactory) 
     : IDocumentPredictionQueryService
 {
+    private readonly IReadOnlyDictionary<AiModelType, double> _modelTypeAccuracyMap = new Dictionary<AiModelType, double>
+    {
+        { AiModelType.GlagoliticModelFullV1_1,  0.7845 },
+        { AiModelType.GlagoliticModelFullV2_0,  0.7958 },
+        { AiModelType.GlagoliticModelFullV2_1,  0.9324 },
+        { AiModelType.GlagoliticModelFullV2_2,  0.8817 },
+        { AiModelType.GlagoliticModelFullV3_0,  0.9688 },
+        { AiModelType.GlagoliticModelFullV4_0,  0.9688 },
+    };
+
+    public ValueTask<IReadOnlyDictionary<AiModelType, double>> GetAiModelTestAccuracy()
+    {
+        return ValueTask.FromResult(_modelTypeAccuracyMap);
+    }
+
     /// <inheritdoc/>
     public async Task<IReadOnlyCollection<RecognizedDocumentDto>> GetFilePredications(
         DateTime? fromDate, 

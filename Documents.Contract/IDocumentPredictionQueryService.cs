@@ -9,4 +9,6 @@ public interface IDocumentPredictionQueryService
         DateTime? toDate, 
         bool? hasProbability, 
         CancellationToken cancellationToken = default);
+
+    ValueTask<IReadOnlyDictionary<AiModelType, double>> GetAiModelTestAccuracy();
 }

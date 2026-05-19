@@ -122,6 +122,15 @@ public static class EndPopint
             return Results.Ok(aiModelTypes);
         });
 
+        documentEndPoints.MapGet("/aiModelTypes/test-accuracy", async (
+            [FromServices] IDocumentPredictionQueryService documentPredictionQueryService
+            ) =>
+        {
+            var aiModelPredictions = await documentPredictionQueryService.GetAiModelTestAccuracy();
+
+            return Results.Ok(aiModelPredictions.ToArray());
+        });
+
         documentEndPoints.MapDelete("/{documentId}", async (
             [FromRoute] long documentId,
             [FromServices] IDocumentCommandService documentCommandService,
