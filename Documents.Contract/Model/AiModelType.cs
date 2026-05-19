@@ -24,4 +24,7 @@ public enum AiModelType : int
 
     [Description("v3.0")]
     GlagoliticModelFullV3_0 = 30,
+
+    [Description("v4.0")]
+    GlagoliticModelFullV4_0 = 40,
 }
