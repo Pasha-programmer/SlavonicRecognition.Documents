@@ -139,7 +139,7 @@ public static class EndPopint
         {
             if (await documentCommandService.DeleteDocuments([documentId], cancellationToken))
             {
-                return Results.Ok();
+                return Results.Ok(true);
             }
 
             return Results.NotFound();
@@ -154,7 +154,7 @@ public static class EndPopint
         {
             if (await documentCommandService.DeleteDocuments(documentIds, cancellationToken))
             {
-                return Results.Ok();
+                return Results.Ok(true);
             }
 
             return Results.NotFound();
