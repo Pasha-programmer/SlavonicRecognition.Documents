@@ -6,7 +6,9 @@ public class DocumentPrediction
 
     public long DocumentId { get; set; }
 
-    public int ModelType { get; set; }
+    public int RecognitionType { get; set; }
+
+    public int? ModelType { get; set; }
 
     public required string Value { get; set; }
 

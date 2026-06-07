@@ -1,4 +1,6 @@
-﻿namespace Documents.Contract.Model;
+﻿using Documents.Contract.Model.Enums.AiModel;
+
+namespace Documents.Contract.Model.DocumentPrediction;
 
 public record RecognizedDocumentDto
 {
@@ -10,5 +12,5 @@ public record RecognizedDocumentDto
 
     public required AiModelType SelectedModelType { get; set; }
 
-    public required IReadOnlyCollection<RecognitionResult> RecognitionResults { get; set; }
+    public required IReadOnlyCollection<RecognitionResultDto> RecognitionResults { get; set; }
 }

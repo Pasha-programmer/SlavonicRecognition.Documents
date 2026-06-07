@@ -1,9 +1,9 @@
-﻿using Documents.Contract;
-using Documents.Contract.Model;
+﻿using Documents.Contract.Document;
+using Documents.Contract.Model.Document;
 using Documents.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace Documents.Infrastructure;
+namespace Documents.Infrastructure.Document;
 
 internal class DocumentQueryService(
     IDbContextFactory<DocumentContext> contextFactory)

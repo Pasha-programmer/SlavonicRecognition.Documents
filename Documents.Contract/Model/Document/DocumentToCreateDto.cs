@@ -1,6 +1,8 @@
-﻿namespace Documents.Contract.Model;
+﻿using Documents.Contract.Model.Enums.AiModel;
 
-public record DocumentToCreate
+namespace Documents.Contract.Model.Document;
+
+public record DocumentToCreateDto
 {
     public required string FileName { get; set; }
 

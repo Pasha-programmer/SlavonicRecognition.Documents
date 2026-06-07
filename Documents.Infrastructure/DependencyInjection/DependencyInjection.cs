@@ -1,6 +1,14 @@
-﻿using Documents.Contract;
+﻿using Documents.Contract.Document;
+using Documents.Contract.DocumentPrediction;
+using Documents.Contract.ProcessDocument;
+using Documents.Contract.TuneAiModel;
 using Documents.Database.DependencyInjection;
+using Documents.Infrastructure.Contract;
+using Documents.Infrastructure.Document;
+using Documents.Infrastructure.DocumentPrediction;
 using Documents.Infrastructure.Model;
+using Documents.Infrastructure.ProcessDocument;
+using Documents.Infrastructure.TuneAiModel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -37,7 +45,8 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IRabbitMqService, RabbitMqService>();
-        services.AddScoped<IProcessDocument, ProcessDocument>();
+        services.AddScoped<IProcessDocumentService, ProcessDocumentService>();
+        services.AddScoped<IAiModelTuningService, AiModelTuningService>();
         services.AddScoped<IDocumentCommandService, DocumentCommandService>();
         services.AddScoped<IDocumentQueryService, DocumentQueryService>();
         services.AddScoped<IDocumentPredictionQueryService, DocumentPredictionQueryService>();

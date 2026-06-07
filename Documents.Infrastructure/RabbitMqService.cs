@@ -1,21 +1,15 @@
-﻿using Documents.Contract.Model;
+﻿using Documents.Infrastructure.Contract;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Documents.Infrastructure;
 
-public class RabbitMqService : IRabbitMqService, IAsyncDisposable
+public class RabbitMqService(IConnectionFactory connectionFactory) : IRabbitMqService, IAsyncDisposable
 {
-    private readonly IConnectionFactory _connectionFactory;
+    private readonly IConnectionFactory _connectionFactory = connectionFactory;
     private IConnection _connection;
     private IChannel _channel;
-
-    public RabbitMqService(IConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
 
     private async Task EnsureConnectionAsync(CancellationToken cancellationToken)
     {

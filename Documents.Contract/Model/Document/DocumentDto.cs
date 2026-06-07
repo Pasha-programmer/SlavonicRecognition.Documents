@@ -1,4 +1,4 @@
-﻿namespace Documents.Contract.Model;
+﻿namespace Documents.Contract.Model.Document;
 
 public record DocumentDto
 {

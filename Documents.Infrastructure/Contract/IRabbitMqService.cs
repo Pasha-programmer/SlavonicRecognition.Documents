@@ -1,4 +1,4 @@
-﻿namespace Documents.Infrastructure;
+﻿namespace Documents.Infrastructure.Contract;
 
 internal interface IRabbitMqService
 {

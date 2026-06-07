@@ -1,6 +1,8 @@
-﻿namespace Documents.Contract.Model;
+﻿using Documents.Contract.Model.Enums.AiModel;
 
-public record ProcessingDocument
+namespace Documents.Contract.Model.ProcessDocument;
+
+public record DocumentToProcessDto
 {
     public required long DocumentId { get; set; }
 

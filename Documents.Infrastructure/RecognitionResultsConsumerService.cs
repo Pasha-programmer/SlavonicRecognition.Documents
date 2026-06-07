@@ -1,37 +1,29 @@
-﻿using Documents.Contract;
-using Documents.Contract.Model;
+﻿using Documents.Contract.DocumentPrediction;
+using Documents.Contract.Model.DocumentPrediction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Documents.Infrastructure;
 
-internal class RecognitionResultsConsumerService : IHostedService
+internal class RecognitionResultsConsumerService(
+    IConnectionFactory connectionFactory,
+    ILogger<RecognitionResultsConsumerService> logger,
+    IServiceProvider serviceProvider
+    ) : IHostedService
 {
-    private readonly ILogger<RecognitionResultsConsumerService> _logger;
+    private readonly ILogger<RecognitionResultsConsumerService> _logger = logger;
 
-    private readonly IServiceProvider _serviceProvider;
-    private readonly IConnectionFactory _connectionFactory;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+    private readonly IConnectionFactory _connectionFactory = connectionFactory;
     private IConnection _connection;
     private IChannel _channel;
 
     private const string RECOGNITION_RESULTS_QUEUE_NAME = "RecognitionResults.Queue";
-
-    public RecognitionResultsConsumerService(
-        IConnectionFactory connectionFactory,
-        ILogger<RecognitionResultsConsumerService> logger,
-        IServiceProvider serviceProvider)
-    {
-        _logger = logger;
-        _serviceProvider = serviceProvider;
-        _connectionFactory = connectionFactory;;
-    }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -65,7 +57,7 @@ internal class RecognitionResultsConsumerService : IHostedService
             try
             {
                 var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                var result = JsonSerializer.Deserialize<RecognitionResult[]>(message);
+                var result = JsonSerializer.Deserialize<RecognitionResultDto[]>(message);
 
                 if (result != null)
                 {

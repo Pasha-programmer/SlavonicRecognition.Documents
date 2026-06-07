@@ -64,8 +64,8 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=admin
       - RABBITMQ_PASSWORD=admin123
-      - RABBITMQ_QUEUE=RecognitionRequest.Queue
-      - RABBITMQ_QUEUE2=RecognitionResults.Queue
+      - RABBITMQ_QUEUE_RECOGNITION_REQUEST=RecognitionRequest.Queue
+      - RABBITMQ_QUEUE_RECOGNITION_RESULTS=RecognitionResults.Queue
       - DB_CONNECTION_STRING=/app/data/DocumentRecognitionAi.db
     depends_on:
       documents.rabbitmq:

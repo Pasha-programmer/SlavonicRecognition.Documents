@@ -1,21 +1,20 @@
-﻿using Documents.Contract;
-using Documents.Contract.Model;
+﻿using Documents.Contract.Document;
+using Documents.Contract.Model.Document;
 using Documents.Database;
-using Documents.Database.Entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Documents.Infrastructure;
+namespace Documents.Infrastructure.Document;
 
 internal class DocumentCommandService(
     IDbContextFactory<DocumentContext> contextFactory)
     : IDocumentCommandService
 {
     /// <inheritdoc/>
-    public async Task<long> AddDocument(DocumentToCreate model, CancellationToken cancellationToken = default)
+    public async Task<long> AddDocument(DocumentToCreateDto model, CancellationToken cancellationToken = default)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var document = new Document
+        var document = new Database.Entity.Document
         {
             FileName = model.FileName,
             FileBlob = model.FileBlob,

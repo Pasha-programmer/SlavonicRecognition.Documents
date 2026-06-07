@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace Documents.Contract.Model;
+namespace Documents.Contract.Model.Enums.AiModel;
 
 [JsonConverter(typeof(DescriptionEnumConverter<AiModelType>))]
 public enum AiModelType : int

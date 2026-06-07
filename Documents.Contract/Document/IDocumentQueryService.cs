@@ -1,6 +1,6 @@
-﻿using Documents.Contract.Model;
+﻿using Documents.Contract.Model.Document;
 
-namespace Documents.Contract;
+namespace Documents.Contract.Document;
 
 public interface IDocumentQueryService
 {
