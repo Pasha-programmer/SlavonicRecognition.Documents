@@ -2,6 +2,7 @@
 using Documents.Contract.Model.AiModelTuning;
 using Documents.Contract.Model.DocumentPrediction;
 using Documents.Contract.TuneAiModel;
+using Documents.Contract.TunedDocumentPrediction;
 using Documents.Infrastructure.Contract;
 using Documents.Infrastructure.Model;
 using Microsoft.Extensions.Logging;
@@ -15,30 +16,23 @@ namespace Documents.Infrastructure.TuneAiModel;
 internal class AiModelTuningService(
     ILogger<AiModelTuningService> logger,
     IRabbitMqService rabbitMqService,
-    IDocumentPredictionQueryService documentPredictionQueryService
+    IDocumentPredictionQueryService documentPredictionQueryService,
+    ITunedDocumentPredictionQueryService tunedDocumentPredictionQueryService
     ) : IAiModelTuningService
 {
     private readonly ILogger<AiModelTuningService> _logger = logger;
     private readonly IRabbitMqService _rabbitMqService = rabbitMqService;
     private readonly IDocumentPredictionQueryService _documentPredictionQueryService = documentPredictionQueryService;
+    private readonly ITunedDocumentPredictionQueryService _tunedDocumentPredictionQueryService = tunedDocumentPredictionQueryService;
 
     private const string TUNE_REQUEST_QUEUE_NAME = "TuneRequest.Queue";
 
     /// <inheritdoc/>
     public async Task<bool> StartTuneAiModel(AiModelToTuningDto aiModelToTuningDto, CancellationToken cancellationToken = default)
     {
-        return await StartTuneAiModels([aiModelToTuningDto], cancellationToken);
-    }
+        _logger.LogInformation("Получены на доообучение предсказания с IDs: {DocumentPredictionIds}", aiModelToTuningDto.DocumentPredictionIds);
 
-    /// <inheritdoc/>
-    public async Task<bool> StartTuneAiModels(IReadOnlyCollection<AiModelToTuningDto> aiModelsToTuningDto, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Получены на доообучение предсказания с IDs: {DocumentPredictionIds}", aiModelsToTuningDto
-                .SelectMany(x => x.DocumentPredictionIds)
-                .Distinct()
-                .ToArray());
-
-        var aiModelToTuningModels = await GetDocumentPredictions(aiModelsToTuningDto);
+        var aiModelToTuningModels = await GetDocumentPredictions(aiModelToTuningDto, cancellationToken);
 
         if (aiModelToTuningModels.Count == 0)
         {
@@ -54,42 +48,18 @@ internal class AiModelTuningService(
     }
 
     /// <inheritdoc/>
-    private async Task<IReadOnlyCollection<AiModelToTuningModel>> GetDocumentPredictions(IReadOnlyCollection<AiModelToTuningDto> aiModelsToTuningDto)
+    private async Task<IReadOnlyCollection<AiModelToTuningModel>> GetDocumentPredictions(AiModelToTuningDto aiModelToTuningDto, CancellationToken cancellationToken = default)
     {
         var documentPredictionFilterParameters = new DocumentPredictionFilterParameters
         {
-            DocumentPredictionIds = aiModelsToTuningDto
-                .SelectMany(x => x.DocumentPredictionIds)
-                .Distinct()
-                .ToArray(),
+            DocumentPredictionIds = aiModelToTuningDto.DocumentPredictionIds,
         };
 
-        var documentPredictions = await _documentPredictionQueryService.GetDocumentPredications(documentPredictionFilterParameters);
+        var documentPredictions = await _documentPredictionQueryService.GetDocumentPredications(documentPredictionFilterParameters, cancellationToken);
 
-        var usedDocumentPredictionIds = new List<long>();
-
-        var aiModelToTuningModels = documentPredictions.SelectMany(dp => dp.RecognitionResults
-            .SelectMany(rr =>
-            {
-                var usedAiModelToTuningDtos = aiModelsToTuningDto
-                    .Where(mt => mt.DocumentPredictionIds.Contains(rr.Id!.Value));
-
-                if (usedAiModelToTuningDtos.Any())
-                    usedDocumentPredictionIds.Add(rr.Id!.Value);
-                else
-                    return Array.Empty<AiModelToTuningModel>();
-
-                return usedAiModelToTuningDtos
-                    .Select(mt => new AiModelToTuningModel
-                    {
-                        AiModelType = mt.AiModelType,
-                        FileBlob = dp.FileBlob,
-                        Label = rr.Label,
-                    })
-                    .ToArray();
-            })).ToArray();
-
-        var notFoundDocumentPredictionIds = documentPredictionFilterParameters.DocumentPredictionIds.Except(usedDocumentPredictionIds).ToArray();
+        var notFoundDocumentPredictionIds = aiModelToTuningDto.DocumentPredictionIds
+            .Except(documentPredictions.SelectMany(dp => dp.RecognitionResults.Select(rr => rr.Id!.Value)))
+            .ToArray();
         if (notFoundDocumentPredictionIds.Length > 0)
         {
             _logger.LogError("Не не обнаружены предсказания: {DocumentPredictionIds}", notFoundDocumentPredictionIds);
@@ -98,6 +68,22 @@ internal class AiModelTuningService(
         {
             _logger.LogInformation("Найдены все предсказания");
         }
+
+        var tunedPredictions = (await _tunedDocumentPredictionQueryService.GetTunedDocumentPredictions(
+            documentPredictionFilterParameters.DocumentPredictionIds,
+            [aiModelToTuningDto.AiModelType],
+            cancellationToken));
+
+        var aiModelToTuningModels = documentPredictions
+            .SelectMany(dp => dp.RecognitionResults
+                .Where(rr => !tunedPredictions.Any(tp => tp.DocumentPredictionId == rr.DocumentId))
+                .Select(rr => new AiModelToTuningModel
+                {
+                    AiModelType = aiModelToTuningDto.AiModelType,
+                    FileBlob = dp.FileBlob,
+                    Label = rr.Label,
+                }))
+            .ToArray();
 
         return aiModelToTuningModels;
     }

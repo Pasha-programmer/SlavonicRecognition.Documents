@@ -69,7 +69,7 @@ internal class DocumentPredictionQueryService(
                     RecognitionResults = gd.Where(d => d.Label != null)
                         .Select(d => new RecognitionResultDto
                         {
-                            Id = gd.Key,
+                            Id = d.DocumentPredictionId,
                             DocumentId = gd.Key,
                             ModelType = (AiModelType?)d.ModelType,
                             RecognitionType = (RecognitionType)d.RecognitionType!,

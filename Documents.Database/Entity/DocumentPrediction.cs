@@ -2,7 +2,7 @@
 
 public class DocumentPrediction
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public long DocumentId { get; set; }
 

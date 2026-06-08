@@ -2,6 +2,7 @@
 using Documents.Contract.DocumentPrediction;
 using Documents.Contract.ProcessDocument;
 using Documents.Contract.TuneAiModel;
+using Documents.Contract.TunedDocumentPrediction;
 using Documents.Database.DependencyInjection;
 using Documents.Infrastructure.Contract;
 using Documents.Infrastructure.Document;
@@ -9,6 +10,7 @@ using Documents.Infrastructure.DocumentPrediction;
 using Documents.Infrastructure.Model;
 using Documents.Infrastructure.ProcessDocument;
 using Documents.Infrastructure.TuneAiModel;
+using Documents.Infrastructure.TunedDocumentPrediction;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -51,6 +53,8 @@ public static class DependencyInjection
         services.AddScoped<IDocumentQueryService, DocumentQueryService>();
         services.AddScoped<IDocumentPredictionQueryService, DocumentPredictionQueryService>();
         services.AddScoped<IDocumentPredictionCommandService, DocumentPredictionCommandService>();
+        services.AddScoped<ITunedDocumentPredictionCommandService, TunedDocumentPredictionCommandService>();
+        services.AddScoped<ITunedDocumentPredictionQueryService, TunedDocumentPredictionQueryService>();
 
         services.AddHostedService<RecognitionResultsConsumerService>();
 

@@ -111,6 +111,57 @@ internal static class DocumentEndPopints
             });
         });
 
+        documentEndPoints.MapPost("/{id}/manual-prediction", async (
+            [FromRoute] long id,
+            [FromBody] ManualRecognition manualRecognition,
+            [FromServices] IDocumentPredictionCommandService documentPredictionCommandService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await documentPredictionCommandService.AddPredication([
+                    new () {
+                        DocumentId = id,
+                        Label = manualRecognition.Label,
+                        ModelType = null,
+                        Probability = manualRecognition.Probability,
+                        RecognitionType = RecognitionType.Manual,
+                    }
+                ], cancellationToken);
+
+            if (result)
+            {
+                return Results.Ok(true);
+            }
+
+            return Results.Problem();
+        });
+
+        documentEndPoints.MapPut("/{id}/manual-prediction/{documentPredictionId}", async (
+            [FromRoute] long id,
+            [FromRoute] long documentPredictionId,
+            [FromBody] ManualRecognition manualRecognition,
+            [FromServices] IDocumentPredictionCommandService documentPredictionCommandService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await documentPredictionCommandService.UpdatePredication([
+                    new () {
+                        Id = documentPredictionId,
+                        DocumentId = id,
+                        Label = manualRecognition.Label,
+                        ModelType = null,
+                        Probability = manualRecognition.Probability,
+                        RecognitionType = RecognitionType.Manual,
+                    }
+                ], cancellationToken);
+
+            if (result)
+            {
+                return Results.Ok(true);
+            }
+
+            return Results.Problem();
+        });
+
+
         documentEndPoints.MapDelete("/{documentId}", async (
             [FromRoute] long documentId,
             [FromServices] IDocumentCommandService documentCommandService,
@@ -125,30 +176,6 @@ internal static class DocumentEndPopints
             return Results.NotFound();
         });
 
-        documentEndPoints.MapPost("/{id}/manual-prediction", async (
-            [FromRoute] long id,
-            [FromBody] string label,
-            [FromServices] IDocumentPredictionCommandService documentPredictionCommandService,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await documentPredictionCommandService.AddPredication([
-                    new () {
-                        DocumentId = id,
-                        Label = label,
-                        ModelType = null,
-                        Probability = 1,
-                        RecognitionType = RecognitionType.Manual,
-                    }
-                ], cancellationToken);
-
-            if (result)
-            {
-                return Results.Ok(true);
-            }
-
-            return Results.Problem();
-        });
-
         documentEndPoints.MapDelete("", async (
             [FromQuery] long[] documentIds,
             [FromServices] IDocumentQueryService documentQueryService,
@@ -157,6 +184,27 @@ internal static class DocumentEndPopints
             ) =>
         {
             if (await documentCommandService.DeleteDocuments(documentIds, cancellationToken))
+            {
+                return Results.Ok(true);
+            }
+
+            return Results.NotFound();
+        });
+
+
+        documentEndPoints.MapDelete("/{documentId}/document-prediction{documentPredictionId}", async (
+            [FromRoute] long documentId,
+            [FromRoute] long documentPredictionId,
+            [FromServices] IDocumentPredictionCommandService documentPredictionCommandService,
+            CancellationToken cancellationToken
+            ) =>
+        {
+            if (documentId < 0)
+            {
+                return Results.NotFound();
+            }
+
+            if (await documentPredictionCommandService.DeletePredications([documentPredictionId], cancellationToken))
             {
                 return Results.Ok(true);
             }

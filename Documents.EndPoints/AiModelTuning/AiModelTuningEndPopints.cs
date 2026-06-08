@@ -1,5 +1,6 @@
 ﻿using Documents.Contract.Model.AiModelTuning;
 using Documents.Contract.TuneAiModel;
+using Documents.Contract.TunedDocumentPrediction;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,17 @@ internal static class AiModelTuningEndPopints
 
             return Results.Ok(true);
         });
+
+        aiModelTypeEndPoints.MapGet("/prediction", async (
+            [FromServices] ITunedDocumentPredictionQueryService tunedDocumentPredictionQueryService,
+            CancellationToken cancellationToken
+            ) =>
+        {
+            var data = await tunedDocumentPredictionQueryService.GetTunedDocumentPredictions(null, null, cancellationToken);
+
+            return Results.Ok(data);
+        });
+
 
         return aiModelTypeEndPoints;
     }

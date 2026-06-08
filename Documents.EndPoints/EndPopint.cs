@@ -1,4 +1,5 @@
-﻿using Documents.EndPoints.AiModelType;
+﻿using Documents.EndPoints.AiModelTuning;
+using Documents.EndPoints.AiModelType;
 using Documents.EndPoints.Document;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -17,6 +18,8 @@ public static class EndPopint
         DocumentEndPopints.AddDocumentEndPopints(apiEndPoint);
 
         AiModelTypeEndPopints.AddAiModelTypeEndPopints(apiEndPoint);
+
+        AiModelTuningEndPopints.AddAiModelTuningEndPopints(apiEndPoint);
 
         return apiEndPoint;
     }

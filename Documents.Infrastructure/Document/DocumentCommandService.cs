@@ -29,6 +29,7 @@ internal class DocumentCommandService(
         return entity.Entity.Id;
     }
 
+    /// <inheritdoc/>
     public async Task<bool> DeleteDocuments(IReadOnlyCollection<long> documentIds, CancellationToken cancellationToken = default)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);

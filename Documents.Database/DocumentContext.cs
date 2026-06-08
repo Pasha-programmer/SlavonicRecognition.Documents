@@ -13,4 +13,6 @@ public class DocumentContext : DbContext
 
     public DbSet<DocumentPrediction> DocumentPredictions { get; set; }
 
+    public DbSet<TunedDocumentPrediction> TunedDocumentPredictions { get; set; }
+
 }

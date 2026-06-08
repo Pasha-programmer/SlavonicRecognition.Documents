@@ -3,6 +3,7 @@ using System;
 using Documents.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Documents.Database.Migrations
 {
     [DbContext(typeof(DocumentContext))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20260608145108_TunedDocumentPrediction_Init")]
+    partial class TunedDocumentPrediction_Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
