@@ -23,6 +23,7 @@ internal static class DocumentEndPopints
         documentEndPoints.MapPost("/upload", async (
             [FromForm] IFormFileCollection images,
             [FromForm] string modelType,
+            [FromForm] bool useTunedModels,
             [FromServices] IDocumentCommandService documentCommandService,
             [FromServices] IProcessDocumentService processDocument,
             CancellationToken cancellationToken) =>
@@ -60,6 +61,7 @@ internal static class DocumentEndPopints
                     DocumentId = documentId,
                     Blob = fileBlob,
                     AiModelType = aiModelType.Value,
+                    UseTunedModels = useTunedModels,
                 }, cancellationToken);
 
                 documentIds.Add(documentId);
@@ -99,7 +101,8 @@ internal static class DocumentEndPopints
             {
                 DocumentId = d.DocumentId,
                 Blob = d.FileBlob,
-                AiModelType = reprocessParameters.ModelType
+                AiModelType = reprocessParameters.ModelType,
+                UseTunedModels = reprocessParameters.UseTunedModels,
             }).ToArray();
 
             await processDocument.StartProcessDocuments(processingDocuments, cancellationToken);

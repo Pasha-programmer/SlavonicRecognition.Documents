@@ -3,8 +3,6 @@ using Documents.Contract.Model.TunedDocumentPrediction;
 using Documents.Contract.TunedDocumentPrediction;
 using Documents.Database;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Runtime.Intrinsics.Arm;
 
 namespace Documents.Infrastructure.TunedDocumentPrediction;
 

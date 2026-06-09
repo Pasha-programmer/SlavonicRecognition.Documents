@@ -9,4 +9,6 @@ public record DocumentToProcessDto
     public required Memory<byte> Blob { get; set; }
 
     public required AiModelType AiModelType { get; set; }
+
+    public required bool UseTunedModels { get; set; }
 }

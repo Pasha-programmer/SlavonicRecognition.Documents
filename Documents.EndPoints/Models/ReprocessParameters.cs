@@ -5,4 +5,6 @@ internal record ReprocessParameters
     public long[] DocumentIds { get; set; }
 
     public Contract.Model.Enums.AiModel.AiModelType ModelType { get; set; }
+
+    public bool UseTunedModels { get; set; }
 }
