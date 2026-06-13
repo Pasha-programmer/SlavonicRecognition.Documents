@@ -1,5 +1,6 @@
 services:
   documents.webapi:
+    image: cr.yandex/crp27kpk2sn9vrc074jh/documents.webapi:latest
     container_name: "documents.webapi"
     ports:
       - 5052:8080
@@ -26,6 +27,7 @@ services:
         condition: service_healthy
 
   documents.spa:
+    image: cr.yandex/crp27kpk2sn9vrc074jh/documents.spa:latest
     container_name: "documents.spa"
     ports:
       - "5173:5173"
@@ -43,6 +45,7 @@ services:
       - documents.webapi
 
   documents.recognition.ai:
+    image: cr.yandex/crp27kpk2sn9vrc074jh/documents.recognition.ai:latest
     container_name: "documents.recognition.ai"
     build:
       context: ../DocumentRecognition.AI
